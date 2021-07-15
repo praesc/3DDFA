@@ -144,7 +144,7 @@ def mobilenet_075(num_classes=62, input_channel=3):
     return model
 
 
-def mobilenet_05(num_classes=62, input_channel=3):
+def mobilenet_05(num_classes=62, input_channel=3): 
     model = MobileNet(widen_factor=0.5, num_classes=num_classes, input_channel=input_channel)
     return model
 

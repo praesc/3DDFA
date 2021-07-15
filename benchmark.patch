@@ -1,0 +1,1117 @@
+diff --git a/TDDFA_benchmark.py b/TDDFA_benchmark.py
+new file mode 100644
+index 0000000..b49723c
+--- /dev/null
++++ b/TDDFA_benchmark.py
+@@ -0,0 +1,137 @@
++# coding: utf-8
++
++__author__ = 'cleardusk'
++
++import os.path as osp
++import time
++import numpy as np
++import cv2
++import torch
++from torchvision.transforms import Compose
++import torch.backends.cudnn as cudnn
++
++import models
++from bfm import BFMModel
++from utils.io import _load
++from utils.functions import (
++    crop_img, parse_roi_box_from_bbox, parse_roi_box_from_landmark,
++)
++from utils.tddfa_util import (
++    load_model, _parse_param, similar_transform,
++    ToTensorGjz, NormalizeGjz
++)
++
++make_abs_path = lambda fn: osp.join(osp.dirname(osp.realpath(__file__)), fn)
++
++
++class TDDFA(object):
++    """TDDFA: named Three-D Dense Face Alignment (TDDFA)"""
++
++    def __init__(self, **kvs):
++        torch.set_grad_enabled(False)
++
++        # load BFM
++        self.bfm = BFMModel(
++            bfm_fp=kvs.get('bfm_fp', make_abs_path('configs/bfm_noneck_v3.pkl')),
++            shape_dim=kvs.get('shape_dim', 40),
++            exp_dim=kvs.get('exp_dim', 10)
++        )
++        self.tri = self.bfm.tri
++
++        # config
++        self.gpu_mode = kvs.get('gpu_mode', False)
++        self.gpu_id = kvs.get('gpu_id', 0)
++        self.size = kvs.get('size', 120)
++
++        param_mean_std_fp = make_abs_path(f'configs/param_mean_std_62d_{self.size}x{self.size}.pkl')
++
++        # params normalization config
++        r = _load(param_mean_std_fp)
++        self.param_mean = r.get('mean')
++        self.param_std = r.get('std')
++
++        # load model, default output is dimension with length 62 = 12(pose) + 40(shape) +10(expression)            
++        self.model = getattr(models, kvs.get('arch'))(
++            num_classes=kvs.get('num_params', 62)
++            )
++
++    def load_model(self, checkpoint_fp):
++        self.model = load_model(self.model, checkpoint_fp)
++        if self.gpu_mode:
++            cudnn.benchmark = True
++            self.model = self.model.cuda(device=self.gpu_id)
++
++        self.model.eval()  # eval mode, fix BN
++
++    def __call__(self, img_ori, objs, **kvs):
++        """The main call of TDDFA, given image and box / landmark, return 3DMM params and roi_box
++        :param img_ori: the input image
++        :param objs: the list of box or landmarks
++        :param kvs: options
++        :return: param list and roi_box list
++        """
++        # Crop image, forward to get the param
++        param_lst = []
++        '''roi_box_lst = []
++
++        crop_policy = kvs.get('crop_policy', 'box')
++        for obj in objs:
++            if crop_policy == 'box':
++                # by face box
++                roi_box = parse_roi_box_from_bbox(obj)
++            elif crop_policy == 'landmark':
++                # by landmarks
++                roi_box = parse_roi_box_from_landmark(obj)
++            else:
++                raise ValueError(f'Unknown crop policy {crop_policy}')
++
++            roi_box_lst.append(roi_box)
++            img = crop_img(img_ori, roi_box)
++            img = cv2.resize(img, dsize=(self.size, self.size), interpolation=cv2.INTER_LINEAR)
++            inp = self.transform(img).unsqueeze(0)'''
++
++        if self.gpu_mode:
++            inp = img_ori.cuda(device=self.gpu_id)
++
++        if kvs.get('timer_flag', False):
++            end = time.time()
++            param = self.model(img_ori)
++            elapse = f'Inference: {(time.time() - end) * 1000:.1f}ms'
++            print(elapse)
++        else:
++            param = self.model(img_ori)
++
++        #param = param.squeeze().cpu().numpy().flatten().astype(np.float32)
++        #param  = param * self.param_std + self.param_mean  # re-scale
++        # print('output', param)
++        #param_lst.append(param)
++
++        return param
++
++    def recon_vers(self, param_lst, roi_box_lst, **kvs):
++        dense_flag = kvs.get('dense_flag', False)
++        size = self.size
++
++        ver_lst = []
++        if roi_box_lst is None:
++            roi_box_lst = [None for x in param_lst]
++        for param, roi_box in zip(param_lst, roi_box_lst):
++            if dense_flag:
++                R, offset, alpha_shp, alpha_exp = _parse_param(param)
++                pts3d = R @ (self.bfm.u + self.bfm.w_shp @ alpha_shp + self.bfm.w_exp @ alpha_exp). \
++                    reshape(3, -1, order='F') + offset
++                pts3d = similar_transform(pts3d, roi_box, size)
++            else:
++                R, offset, alpha_shp, alpha_exp = _parse_param(param)
++                pts3d = R @ (self.bfm.u_base + self.bfm.w_shp_base @ alpha_shp + self.bfm.w_exp_base @ alpha_exp). \
++                    reshape(3, -1, order='F') + offset
++                if roi_box is not None:
++                    pts3d = similar_transform(pts3d, roi_box, size)
++                else:
++                    pts3d[0, :] -= 1  # for Python compatibility
++                    pts3d[2, :] -= 1
++                    pts3d[1, :] = size - pts3d[1, :]
++
++            ver_lst.append(pts3d)
++
++        return ver_lst
+diff --git a/benchmark.py b/benchmark.py
+index 4e03897..26bfcd2 100755
+--- a/benchmark.py
++++ b/benchmark.py
+@@ -1,15 +1,17 @@
+ #!/usr/bin/env python3
+ # coding: utf-8
+ 
++import os
+ import torch
+ import torch.nn as nn
+ import torch.utils.data as data
+ import torchvision.transforms as transforms
+ import torch.backends.cudnn as cudnn
+-import mobilenet_v1
+ import time
+ import numpy as np
++import yaml
+ 
++from models import mobilenet_v1
+ from benchmark_aflw2000 import calc_nme as calc_nme_alfw2000
+ from benchmark_aflw2000 import ana as ana_alfw2000
+ from benchmark_aflw import calc_nme as calc_nme_alfw
+@@ -17,16 +19,33 @@ from benchmark_aflw import ana as ana_aflw
+ 
+ from utils.ddfa import ToTensorGjz, NormalizeGjz, DDFATestDataset, reconstruct_vertex
+ import argparse
++from TDDFA_benchmark import TDDFA
+ 
+ 
+ def extract_param(checkpoint_fp, root='', filelists=None, arch='mobilenet_1', num_classes=62, device_ids=[0],
+-                  batch_size=128, num_workers=4):
++                  batch_size=128, num_workers=4, tddfa=None):
+     map_location = {f'cuda:{i}': 'cuda:0' for i in range(8)}
+     checkpoint = torch.load(checkpoint_fp, map_location=map_location)['state_dict']
+     torch.cuda.set_device(device_ids[0])
++ 
+     model = getattr(mobilenet_v1, arch)(num_classes=num_classes)
+     model = nn.DataParallel(model, device_ids=device_ids).cuda()
+-    model.load_state_dict(checkpoint)
++    
++    ##### QuantLab #####
++    #from mobilenetv1_quantlab import MobileNetV1
++    #model = MobileNetV1()
++    #checkpoint = torch.load(checkpoint_fp, map_location=map_location)['net']
++    #model.cuda()
++    ###################
++    
++    if not tddfa:
++        model_dict = model.state_dict()
++        for k in checkpoint.keys():
++            if 'fc_param' in k:
++                model_dict[k.replace('_param', '')] = checkpoint[k] 
++            if k in model_dict.keys():
++                model_dict[k] = checkpoint[k]
++        model.load_state_dict(model_dict)
+ 
+     dataset = DDFATestDataset(filelists=filelists, root=root,
+                               transform=transforms.Compose([ToTensorGjz(), NormalizeGjz(mean=127.5, std=128)]))
+@@ -40,18 +59,21 @@ def extract_param(checkpoint_fp, root='', filelists=None, arch='mobilenet_1', nu
+     with torch.no_grad():
+         for _, inputs in enumerate(data_loader):
+             inputs = inputs.cuda()
+-            output = model(inputs)
+-
++            if tddfa:
++                output = tddfa(inputs, None)
++            else:
++                output = model(inputs)           
+             for i in range(output.shape[0]):
+                 param_prediction = output[i].cpu().numpy().flatten()
+-
++                if tddfa:
++                    param_prediction = param_prediction * tddfa.param_std + tddfa.param_mean
+                 outputs.append(param_prediction)
++        
+         outputs = np.array(outputs, dtype=np.float32)
+-
++        
+     print(f'Extracting params take {time.time() - end: .3f}s')
+     return outputs
+ 
+-
+ def _benchmark_aflw(outputs):
+     return ana_aflw(calc_nme_alfw(outputs))
+ 
+@@ -60,23 +82,31 @@ def _benchmark_aflw2000(outputs):
+     return ana_alfw2000(calc_nme_alfw2000(outputs))
+ 
+ 
+-def benchmark_alfw_params(params):
++def benchmark_alfw_params(params, tddfa):
+     outputs = []
+-    for i in range(params.shape[0]):
+-        lm = reconstruct_vertex(params[i])
+-        outputs.append(lm[:2, :])
++    if tddfa:
++        outputs = tddfa.recon_vers(params, None)
++        outputs = [output[:2, :] for output in outputs]
++    else:
++        for i in range(params.shape[0]):
++            lm = reconstruct_vertex(params[i])        
++            outputs.append(lm[:2, :])
+     return _benchmark_aflw(outputs)
+ 
+ 
+-def benchmark_aflw2000_params(params):
++def benchmark_aflw2000_params(params, tddfa):
+     outputs = []
+-    for i in range(params.shape[0]):
+-        lm = reconstruct_vertex(params[i])
+-        outputs.append(lm[:2, :])
++    if tddfa:
++        outputs = tddfa.recon_vers(params, None)
++        outputs = [output[:2, :] for output in outputs]
++    else:
++        for i in range(params.shape[0]):
++            lm = reconstruct_vertex(params[i])
++            outputs.append(lm[:2, :])
+     return _benchmark_aflw2000(outputs)
+ 
+ 
+-def benchmark_pipeline(arch, checkpoint_fp):
++def benchmark_pipeline(arch, checkpoint_fp, tddfa):
+     device_ids = [0]
+ 
+     def aflw():
+@@ -86,9 +116,10 @@ def benchmark_pipeline(arch, checkpoint_fp):
+             filelists='test.data/AFLW_GT_crop.list',
+             arch=arch,
+             device_ids=device_ids,
+-            batch_size=128)
++            batch_size=128,
++            tddfa=tddfa)
+ 
+-        benchmark_alfw_params(params)
++        benchmark_alfw_params(params, tddfa)
+ 
+     def aflw2000():
+         params = extract_param(
+@@ -97,9 +128,10 @@ def benchmark_pipeline(arch, checkpoint_fp):
+             filelists='test.data/AFLW2000-3D_crop.list',
+             arch=arch,
+             device_ids=device_ids,
+-            batch_size=128)
++            batch_size=128, 
++            tddfa=tddfa)
+ 
+-        benchmark_aflw2000_params(params)
++        benchmark_aflw2000_params(params, tddfa)
+ 
+     aflw2000()
+     aflw()
+@@ -109,9 +141,16 @@ def main():
+     parser = argparse.ArgumentParser(description='3DDFA Benchmark')
+     parser.add_argument('--arch', default='mobilenet_1', type=str)
+     parser.add_argument('-c', '--checkpoint-fp', default='models/phase1_wpdc_vdc.pth.tar', type=str)
++    parser.add_argument('-v2', default='', type=str)
+     args = parser.parse_args()
+-
+-    benchmark_pipeline(args.arch, args.checkpoint_fp)
++    
++    tddfa = None
++    if args.v2:
++        cfg = yaml.load(open(args.v2), Loader=yaml.SafeLoader)
++        tddfa = TDDFA(gpu_mode=True, **cfg)
++        tddfa.load_model(args.checkpoint_fp)    
++
++    benchmark_pipeline(args.arch, args.checkpoint_fp, tddfa)
+ 
+ 
+ if __name__ == '__main__':
+diff --git a/bfm/.gitignore b/bfm/.gitignore
+new file mode 100644
+index 0000000..d0f1ed0
+--- /dev/null
++++ b/bfm/.gitignore
+@@ -0,0 +1 @@
++*.ply
+diff --git a/bfm/__init__.py b/bfm/__init__.py
+new file mode 100644
+index 0000000..d16cb66
+--- /dev/null
++++ b/bfm/__init__.py
+@@ -0,0 +1 @@
++from .bfm import BFMModel
+\ No newline at end of file
+diff --git a/bfm/bfm.py b/bfm/bfm.py
+new file mode 100644
+index 0000000..3734059
+--- /dev/null
++++ b/bfm/bfm.py
+@@ -0,0 +1,40 @@
++# coding: utf-8
++
++__author__ = 'cleardusk'
++
++import sys
++
++sys.path.append('..')
++
++import os.path as osp
++import numpy as np
++from utils.io import _load
++
++make_abs_path = lambda fn: osp.join(osp.dirname(osp.realpath(__file__)), fn)
++
++
++def _to_ctype(arr):
++    if not arr.flags.c_contiguous:
++        return arr.copy(order='C')
++    return arr
++
++
++class BFMModel(object):
++    def __init__(self, bfm_fp, shape_dim=40, exp_dim=10):
++        bfm = _load(bfm_fp)
++        self.u = bfm.get('u').astype(np.float32)  # fix bug
++        self.w_shp = bfm.get('w_shp').astype(np.float32)[..., :shape_dim]
++        self.w_exp = bfm.get('w_exp').astype(np.float32)[..., :exp_dim]
++        if osp.split(bfm_fp)[-1] == 'bfm_noneck_v3.pkl':
++            self.tri = _load(make_abs_path('../configs/tri.pkl'))  # this tri/face is re-built for bfm_noneck_v3
++        else:
++            self.tri = bfm.get('tri')
++
++        self.tri = _to_ctype(self.tri.T).astype(np.int32)
++        self.keypoints = bfm.get('keypoints').astype(np.long)  # fix bug
++        w = np.concatenate((self.w_shp, self.w_exp), axis=1)
++        self.w_norm = np.linalg.norm(w, axis=0)
++
++        self.u_base = self.u[self.keypoints].reshape(-1, 1)
++        self.w_shp_base = self.w_shp[self.keypoints]
++        self.w_exp_base = self.w_exp[self.keypoints]
+diff --git a/bfm/bfm_onnx.py b/bfm/bfm_onnx.py
+new file mode 100644
+index 0000000..466c6a4
+--- /dev/null
++++ b/bfm/bfm_onnx.py
+@@ -0,0 +1,98 @@
++# coding: utf-8
++
++__author__ = 'cleardusk'
++
++import sys
++
++sys.path.append('..')
++
++import os.path as osp
++import numpy as np
++import torch
++import torch.nn as nn
++
++from utils.io import _load, _numpy_to_cuda, _numpy_to_tensor
++
++make_abs_path = lambda fn: osp.join(osp.dirname(osp.realpath(__file__)), fn)
++
++
++def _to_ctype(arr):
++    if not arr.flags.c_contiguous:
++        return arr.copy(order='C')
++    return arr
++
++
++def _load_tri(bfm_fp):
++    if osp.split(bfm_fp)[-1] == 'bfm_noneck_v3.pkl':
++        tri = _load(make_abs_path('../configs/tri.pkl'))  # this tri/face is re-built for bfm_noneck_v3
++    else:
++        tri = _load(bfm_fp).get('tri')
++
++    tri = _to_ctype(tri.T).astype(np.int32)
++    return tri
++
++
++class BFMModel_ONNX(nn.Module):
++    """BFM serves as a decoder"""
++
++    def __init__(self, bfm_fp, shape_dim=40, exp_dim=10):
++        super(BFMModel_ONNX, self).__init__()
++
++        _to_tensor = _numpy_to_tensor
++
++        # load bfm
++        bfm = _load(bfm_fp)
++
++        u = _to_tensor(bfm.get('u').astype(np.float32))
++        self.u = u.view(-1, 3).transpose(1, 0)
++        w_shp = _to_tensor(bfm.get('w_shp').astype(np.float32)[..., :shape_dim])
++        w_exp = _to_tensor(bfm.get('w_exp').astype(np.float32)[..., :exp_dim])
++        w = torch.cat((w_shp, w_exp), dim=1)
++        self.w = w.view(-1, 3, w.shape[-1]).contiguous().permute(1, 0, 2)
++
++        # self.u = _to_tensor(bfm.get('u').astype(np.float32))  # fix bug
++        # w_shp = _to_tensor(bfm.get('w_shp').astype(np.float32)[..., :shape_dim])
++        # w_exp = _to_tensor(bfm.get('w_exp').astype(np.float32)[..., :exp_dim])
++        # self.w = torch.cat((w_shp, w_exp), dim=1)
++
++        # self.keypoints = bfm.get('keypoints').astype(np.long)  # fix bug
++        # self.u_base = self.u[self.keypoints].reshape(-1, 1)
++        # self.w_shp_base = self.w_shp[self.keypoints]
++        # self.w_exp_base = self.w_exp[self.keypoints]
++
++    def forward(self, *inps):
++        R, offset, alpha_shp, alpha_exp = inps
++        alpha = torch.cat((alpha_shp, alpha_exp))
++        # pts3d = R @ (self.u + self.w_shp.matmul(alpha_shp) + self.w_exp.matmul(alpha_exp)). \
++        #     view(-1, 3).transpose(1, 0) + offset
++        # pts3d = R @ (self.u + self.w.matmul(alpha)).view(-1, 3).transpose(1, 0) + offset
++        pts3d = R @ (self.u + self.w.matmul(alpha).squeeze()) + offset
++        return pts3d
++
++
++def convert_bfm_to_onnx(bfm_onnx_fp, shape_dim=40, exp_dim=10):
++    # print(shape_dim, exp_dim)
++    bfm_fp = bfm_onnx_fp.replace('.onnx', '.pkl')
++    bfm_decoder = BFMModel_ONNX(bfm_fp=bfm_fp, shape_dim=shape_dim, exp_dim=exp_dim)
++    bfm_decoder.eval()
++
++    # dummy_input = torch.randn(12 + shape_dim + exp_dim)
++    dummy_input = torch.randn(3, 3), torch.randn(3, 1), torch.randn(shape_dim, 1), torch.randn(exp_dim, 1)
++    R, offset, alpha_shp, alpha_exp = dummy_input
++    torch.onnx.export(
++        bfm_decoder,
++        (R, offset, alpha_shp, alpha_exp),
++        bfm_onnx_fp,
++        input_names=['R', 'offset', 'alpha_shp', 'alpha_exp'],
++        output_names=['output'],
++        dynamic_axes={
++            'alpha_shp': [0],
++            'alpha_exp': [0],
++        },
++        do_constant_folding=True
++    )
++    print(f'Convert {bfm_fp} to {bfm_onnx_fp} done.')
++
++
++if __name__ == '__main__':
++    convert_bfm_to_onnx('../configs/bfm_noneck_v3.onnx')
+diff --git a/bfm/readme.md b/bfm/readme.md
+new file mode 100644
+index 0000000..3a40fc4
+--- /dev/null
++++ b/bfm/readme.md
+@@ -0,0 +1,23 @@
++## Statement
++
++The modified BFM2009 face model in `../configs/bfm_noneck_v3.pkl` is only for academic use.
++For commercial use, you need to apply for the commercial license, some refs are below:
++
++[1] https://faces.dmi.unibas.ch/bfm/?nav=1-0&id=basel_face_model
++
++[2] https://faces.dmi.unibas.ch/bfm/bfm2019.html
++
++If your work benefits from this repo, please cite
++
++    @PROCEEDINGS{bfm09,
++        title={A 3D Face Model for Pose and Illumination Invariant Face Recognition},
++        author={P. Paysan and R. Knothe and B. Amberg
++                and S. Romdhani and T. Vetter},
++        journal={Proceedings of the 6th IEEE International Conference on Advanced Video and Signal based Surveillance (AVSS)
++             for Security, Safety and Monitoring in Smart Environments},
++        organization={IEEE},
++        year={2009},
++        address     = {Genova, Italy},
++    }
++
++ 
+\ No newline at end of file
+diff --git a/configs/.gitignore b/configs/.gitignore
+new file mode 100644
+index 0000000..5f6ba3b
+--- /dev/null
++++ b/configs/.gitignore
+@@ -0,0 +1,3 @@
++*.pkl
++*.yml
++*.onnx
+\ No newline at end of file
+diff --git a/configs/BFM_UV.mat b/configs/BFM_UV.mat
+new file mode 100644
+index 0000000..fa20544
+Binary files /dev/null and b/configs/BFM_UV.mat differ
+diff --git a/configs/indices.npy b/configs/indices.npy
+new file mode 100644
+index 0000000..8dc0fbd
+Binary files /dev/null and b/configs/indices.npy differ
+diff --git a/configs/ncc_code.npy b/configs/ncc_code.npy
+new file mode 100644
+index 0000000..b1411ff
+Binary files /dev/null and b/configs/ncc_code.npy differ
+diff --git a/configs/readme.md b/configs/readme.md
+new file mode 100644
+index 0000000..b6930cd
+--- /dev/null
++++ b/configs/readme.md
+@@ -0,0 +1,3 @@
++## The simplified version of BFM
++
++`bfm_noneck_v3_slim.pkl`: [Google Drive](https://drive.google.com/file/d/1iK5lD49E_gCn9voUjWDPj2ItGKvM10GI/view?usp=sharing) or [Baidu Drive](https://pan.baidu.com/s/1C_SzYBOG3swZA_EjxpXlAw) (Password: p803)
+\ No newline at end of file
+diff --git a/models/__init__.py b/models/__init__.py
+new file mode 100644
+index 0000000..185e9d9
+--- /dev/null
++++ b/models/__init__.py
+@@ -0,0 +1,3 @@
++from .mobilenet_v1 import *
++from .mobilenet_v3 import *
++
+diff --git a/mobilenet_v1.py b/models/mobilenet_v1.py
+similarity index 99%
+rename from mobilenet_v1.py
+rename to models/mobilenet_v1.py
+index 65e5da7..1b0260a 100755
+--- a/mobilenet_v1.py
++++ b/models/mobilenet_v1.py
+@@ -144,7 +144,7 @@ def mobilenet_075(num_classes=62, input_channel=3):
+     return model
+ 
+ 
+-def mobilenet_05(num_classes=62, input_channel=3):
++def mobilenet_05(num_classes=62, input_channel=3): 
+     model = MobileNet(widen_factor=0.5, num_classes=num_classes, input_channel=input_channel)
+     return model
+ 
+diff --git a/models/mobilenet_v3.py b/models/mobilenet_v3.py
+new file mode 100644
+index 0000000..e5eaf7f
+--- /dev/null
++++ b/models/mobilenet_v3.py
+@@ -0,0 +1,246 @@
++# coding: utf-8
++
++
++import torch.nn as nn
++import torch.nn.functional as F
++
++__all__ = ['MobileNetV3', 'mobilenet_v3']
++
++
++def conv_bn(inp, oup, stride, conv_layer=nn.Conv2d, norm_layer=nn.BatchNorm2d, nlin_layer=nn.ReLU):
++    return nn.Sequential(
++        conv_layer(inp, oup, 3, stride, 1, bias=False),
++        norm_layer(oup),
++        nlin_layer(inplace=True)
++    )
++
++
++def conv_1x1_bn(inp, oup, conv_layer=nn.Conv2d, norm_layer=nn.BatchNorm2d, nlin_layer=nn.ReLU):
++    return nn.Sequential(
++        conv_layer(inp, oup, 1, 1, 0, bias=False),
++        norm_layer(oup),
++        nlin_layer(inplace=True)
++    )
++
++
++class Hswish(nn.Module):
++    def __init__(self, inplace=True):
++        super(Hswish, self).__init__()
++        self.inplace = inplace
++
++    def forward(self, x):
++        return x * F.relu6(x + 3., inplace=self.inplace) / 6.
++
++
++class Hsigmoid(nn.Module):
++    def __init__(self, inplace=True):
++        super(Hsigmoid, self).__init__()
++        self.inplace = inplace
++
++    def forward(self, x):
++        return F.relu6(x + 3., inplace=self.inplace) / 6.
++
++
++class SEModule(nn.Module):
++    def __init__(self, channel, reduction=4):
++        super(SEModule, self).__init__()
++        self.avg_pool = nn.AdaptiveAvgPool2d(1)
++        self.fc = nn.Sequential(
++            nn.Linear(channel, channel // reduction, bias=False),
++            nn.ReLU(inplace=True),
++            nn.Linear(channel // reduction, channel, bias=False),
++            Hsigmoid()
++            # nn.Sigmoid()
++        )
++
++    def forward(self, x):
++        b, c, _, _ = x.size()
++        y = self.avg_pool(x).view(b, c)
++        y = self.fc(y).view(b, c, 1, 1)
++        return x * y.expand_as(x)
++
++
++class Identity(nn.Module):
++    def __init__(self, channel):
++        super(Identity, self).__init__()
++
++    def forward(self, x):
++        return x
++
++
++def make_divisible(x, divisible_by=8):
++    import numpy as np
++    return int(np.ceil(x * 1. / divisible_by) * divisible_by)
++
++
++class MobileBottleneck(nn.Module):
++    def __init__(self, inp, oup, kernel, stride, exp, se=False, nl='RE'):
++        super(MobileBottleneck, self).__init__()
++        assert stride in [1, 2]
++        assert kernel in [3, 5]
++        padding = (kernel - 1) // 2
++        self.use_res_connect = stride == 1 and inp == oup
++
++        conv_layer = nn.Conv2d
++        norm_layer = nn.BatchNorm2d
++        if nl == 'RE':
++            nlin_layer = nn.ReLU  # or ReLU6
++        elif nl == 'HS':
++            nlin_layer = Hswish
++        else:
++            raise NotImplementedError
++        if se:
++            SELayer = SEModule
++        else:
++            SELayer = Identity
++
++        self.conv = nn.Sequential(
++            # pw
++            conv_layer(inp, exp, 1, 1, 0, bias=False),
++            norm_layer(exp),
++            nlin_layer(inplace=True),
++            # dw
++            conv_layer(exp, exp, kernel, stride, padding, groups=exp, bias=False),
++            norm_layer(exp),
++            SELayer(exp),
++            nlin_layer(inplace=True),
++            # pw-linear
++            conv_layer(exp, oup, 1, 1, 0, bias=False),
++            norm_layer(oup),
++        )
++
++    def forward(self, x):
++        if self.use_res_connect:
++            return x + self.conv(x)
++        else:
++            return self.conv(x)
++
++
++class MobileNetV3(nn.Module):
++    def __init__(self, widen_factor=1.0, num_classes=141, num_landmarks=136, input_size=120, mode='small'):
++        super(MobileNetV3, self).__init__()
++        input_channel = 16
++        last_channel = 1280
++        if mode == 'large':
++            # refer to Table 1 in paper
++            mobile_setting = [
++                # k, exp, c,  se,     nl,  s,
++                [3, 16, 16, False, 'RE', 1],
++                [3, 64, 24, False, 'RE', 2],
++                [3, 72, 24, False, 'RE', 1],
++                [5, 72, 40, True, 'RE', 2],
++                [5, 120, 40, True, 'RE', 1],
++                [5, 120, 40, True, 'RE', 1],
++                [3, 240, 80, False, 'HS', 2],
++                [3, 200, 80, False, 'HS', 1],
++                [3, 184, 80, False, 'HS', 1],
++                [3, 184, 80, False, 'HS', 1],
++                [3, 480, 112, True, 'HS', 1],
++                [3, 672, 112, True, 'HS', 1],
++                [5, 672, 160, True, 'HS', 2],
++                [5, 960, 160, True, 'HS', 1],
++                [5, 960, 160, True, 'HS', 1],
++            ]
++        elif mode == 'small':
++            # refer to Table 2 in paper
++            mobile_setting = [
++                # k, exp, c,  se,     nl,  s,
++                [3, 16, 16, True, 'RE', 2],
++                [3, 72, 24, False, 'RE', 2],
++                [3, 88, 24, False, 'RE', 1],
++                [5, 96, 40, True, 'HS', 2],
++                [5, 240, 40, True, 'HS', 1],
++                [5, 240, 40, True, 'HS', 1],
++                [5, 120, 48, True, 'HS', 1],
++                [5, 144, 48, True, 'HS', 1],
++                [5, 288, 96, True, 'HS', 2],
++                [5, 576, 96, True, 'HS', 1],
++                [5, 576, 96, True, 'HS', 1],
++            ]
++        else:
++            raise NotImplementedError
++
++        # building first layer
++        assert input_size % 32 == 0
++        last_channel = make_divisible(last_channel * widen_factor) if widen_factor > 1.0 else last_channel
++        self.features = [conv_bn(3, input_channel, 2, nlin_layer=Hswish)]
++        # self.classifier = []
++
++        # building mobile blocks
++        for k, exp, c, se, nl, s in mobile_setting:
++            output_channel = make_divisible(c * widen_factor)
++            exp_channel = make_divisible(exp * widen_factor)
++            self.features.append(MobileBottleneck(input_channel, output_channel, k, s, exp_channel, se, nl))
++            input_channel = output_channel
++
++        # building last several layers
++        if mode == 'large':
++            last_conv = make_divisible(960 * widen_factor)
++            self.features.append(conv_1x1_bn(input_channel, last_conv, nlin_layer=Hswish))
++            self.features.append(nn.AdaptiveAvgPool2d(1))
++            self.features.append(nn.Conv2d(last_conv, last_channel, 1, 1, 0))
++            self.features.append(Hswish(inplace=True))
++        elif mode == 'small':
++            last_conv = make_divisible(576 * widen_factor)
++            self.features.append(conv_1x1_bn(input_channel, last_conv, nlin_layer=Hswish))
++            # self.features.append(SEModule(last_conv))  # refer to paper Table2, but I think this is a mistake
++            self.features.append(nn.AdaptiveAvgPool2d(1))
++            self.features.append(nn.Conv2d(last_conv, last_channel, 1, 1, 0))
++            self.features.append(Hswish(inplace=True))
++        else:
++            raise NotImplementedError
++
++        # make it nn.Sequential
++        self.features = nn.Sequential(*self.features)
++
++        # self.fc_param = nn.Linear(int(last_channel), num_classes)
++        self.fc = nn.Linear(int(last_channel), num_classes)
++        # self.fc_lm = nn.Linear(int(last_channel), num_landmarks)
++
++        # building classifier
++        # self.classifier = nn.Sequential(
++        #     nn.Dropout(p=dropout),    # refer to paper section 6
++        #     nn.Linear(last_channel, n_class),
++        # )
++
++        self._initialize_weights()
++
++    def forward(self, x):
++        x = self.features(x)
++        x_share = x.mean(3).mean(2)
++
++        # x = self.classifier(x)
++        # print(x_share.shape)
++        # xp = self.fc_param(x_share)  # param
++        # xl = self.fc_lm(x_share)  # lm
++
++        xp = self.fc(x_share)  # param
++
++        return xp  # , xl
++
++    def _initialize_weights(self):
++        # weight initialization
++        for m in self.modules():
++            if isinstance(m, nn.Conv2d):
++                nn.init.kaiming_normal_(m.weight, mode='fan_out')
++                if m.bias is not None:
++                    nn.init.zeros_(m.bias)
++            elif isinstance(m, nn.BatchNorm2d):
++                nn.init.ones_(m.weight)
++                nn.init.zeros_(m.bias)
++            elif isinstance(m, nn.Linear):
++                nn.init.normal_(m.weight, 0, 0.01)
++                if m.bias is not None:
++                    nn.init.zeros_(m.bias)
++
++
++def mobilenet_v3(**kwargs):
++    model = MobileNetV3(
++        widen_factor=kwargs.get('widen_factor', 1.0),
++        num_classes=kwargs.get('num_classes', 62),
++        num_landmarks=kwargs.get('num_landmarks', 136),
++        input_size=kwargs.get('size', 128),
++        mode=kwargs.get('mode', 'small')
++    )
++
++    return model
+diff --git a/utils/functions.py b/utils/functions.py
+new file mode 100644
+index 0000000..970c668
+--- /dev/null
++++ b/utils/functions.py
+@@ -0,0 +1,182 @@
++# coding: utf-8
++
++__author__ = 'cleardusk'
++
++import numpy as np
++import cv2
++from math import sqrt
++import matplotlib.pyplot as plt
++
++RED = (0, 0, 255)
++GREEN = (0, 255, 0)
++BLUE = (255, 0, 0)
++
++
++def get_suffix(filename):
++    """a.jpg -> jpg"""
++    pos = filename.rfind('.')
++    if pos == -1:
++        return ''
++    return filename[pos:]
++
++
++def crop_img(img, roi_box):
++    h, w = img.shape[:2]
++
++    sx, sy, ex, ey = [int(round(_)) for _ in roi_box]
++    dh, dw = ey - sy, ex - sx
++    if len(img.shape) == 3:
++        res = np.zeros((dh, dw, 3), dtype=np.uint8)
++    else:
++        res = np.zeros((dh, dw), dtype=np.uint8)
++    if sx < 0:
++        sx, dsx = 0, -sx
++    else:
++        dsx = 0
++
++    if ex > w:
++        ex, dex = w, dw - (ex - w)
++    else:
++        dex = dw
++
++    if sy < 0:
++        sy, dsy = 0, -sy
++    else:
++        dsy = 0
++
++    if ey > h:
++        ey, dey = h, dh - (ey - h)
++    else:
++        dey = dh
++
++    res[dsy:dey, dsx:dex] = img[sy:ey, sx:ex]
++    return res
++
++
++def calc_hypotenuse(pts):
++    bbox = [min(pts[0, :]), min(pts[1, :]), max(pts[0, :]), max(pts[1, :])]
++    center = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
++    radius = max(bbox[2] - bbox[0], bbox[3] - bbox[1]) / 2
++    bbox = [center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius]
++    llength = sqrt((bbox[2] - bbox[0]) ** 2 + (bbox[3] - bbox[1]) ** 2)
++    return llength / 3
++
++
++def parse_roi_box_from_landmark(pts):
++    """calc roi box from landmark"""
++    bbox = [min(pts[0, :]), min(pts[1, :]), max(pts[0, :]), max(pts[1, :])]
++    center = [(bbox[0] + bbox[2]) / 2, (bbox[1] + bbox[3]) / 2]
++    radius = max(bbox[2] - bbox[0], bbox[3] - bbox[1]) / 2
++    bbox = [center[0] - radius, center[1] - radius, center[0] + radius, center[1] + radius]
++
++    llength = sqrt((bbox[2] - bbox[0]) ** 2 + (bbox[3] - bbox[1]) ** 2)
++    center_x = (bbox[2] + bbox[0]) / 2
++    center_y = (bbox[3] + bbox[1]) / 2
++
++    roi_box = [0] * 4
++    roi_box[0] = center_x - llength / 2
++    roi_box[1] = center_y - llength / 2
++    roi_box[2] = roi_box[0] + llength
++    roi_box[3] = roi_box[1] + llength
++
++    return roi_box
++
++
++def parse_roi_box_from_bbox(bbox):
++    left, top, right, bottom = bbox[:4]
++    old_size = (right - left + bottom - top) / 2
++    center_x = right - (right - left) / 2.0
++    center_y = bottom - (bottom - top) / 2.0 + old_size * 0.14
++    size = int(old_size * 1.58)
++
++    roi_box = [0] * 4
++    roi_box[0] = center_x - size / 2
++    roi_box[1] = center_y - size / 2
++    roi_box[2] = roi_box[0] + size
++    roi_box[3] = roi_box[1] + size
++
++    return roi_box
++
++
++def plot_image(img):
++    height, width = img.shape[:2]
++    plt.figure(figsize=(12, height / width * 12))
++
++    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
++    plt.axis('off')
++
++    plt.imshow(img[..., ::-1])
++    plt.show()
++
++
++def draw_landmarks(img, pts, style='fancy', wfp=None, show_flag=False, **kwargs):
++    """Draw landmarks using matplotlib"""
++    height, width = img.shape[:2]
++    plt.figure(figsize=(12, height / width * 12))
++    plt.imshow(img[..., ::-1])
++    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
++    plt.axis('off')
++
++    dense_flag = kwargs.get('dense_flag')
++
++    if not type(pts) in [tuple, list]:
++        pts = [pts]
++    for i in range(len(pts)):
++        if dense_flag:
++            plt.plot(pts[i][0, ::6], pts[i][1, ::6], 'o', markersize=0.4, color='c', alpha=0.7)
++        else:
++            alpha = 0.8
++            markersize = 4
++            lw = 1.5
++            color = kwargs.get('color', 'w')
++            markeredgecolor = kwargs.get('markeredgecolor', 'black')
++
++            nums = [0, 17, 22, 27, 31, 36, 42, 48, 60, 68]
++
++            # close eyes and mouths
++            plot_close = lambda i1, i2: plt.plot([pts[i][0, i1], pts[i][0, i2]], [pts[i][1, i1], pts[i][1, i2]],
++                                                 color=color, lw=lw, alpha=alpha - 0.1)
++            plot_close(41, 36)
++            plot_close(47, 42)
++            plot_close(59, 48)
++            plot_close(67, 60)
++
++            for ind in range(len(nums) - 1):
++                l, r = nums[ind], nums[ind + 1]
++                plt.plot(pts[i][0, l:r], pts[i][1, l:r], color=color, lw=lw, alpha=alpha - 0.1)
++
++                plt.plot(pts[i][0, l:r], pts[i][1, l:r], marker='o', linestyle='None', markersize=markersize,
++                         color=color,
++                         markeredgecolor=markeredgecolor, alpha=alpha)
++    if wfp is not None:
++        plt.savefig(wfp, dpi=150)
++        print(f'Save visualization result to {wfp}')
++
++    if show_flag:
++        plt.show()
++
++
++def cv_draw_landmark(img_ori, pts, box=None, color=GREEN, size=1):
++    img = img_ori.copy()
++    n = pts.shape[1]
++    if n <= 106:
++        for i in range(n):
++            cv2.circle(img, (int(round(pts[0, i])), int(round(pts[1, i]))), size, color, -1)
++    else:
++        sep = 1
++        for i in range(0, n, sep):
++            cv2.circle(img, (int(round(pts[0, i])), int(round(pts[1, i]))), size, color, 1)
++
++    if box is not None:
++        left, top, right, bottom = np.round(box).astype(np.int32)
++        left_top = (left, top)
++        right_top = (right, top)
++        right_bottom = (right, bottom)
++        left_bottom = (left, bottom)
++        cv2.line(img, left_top, right_top, BLUE, 1, cv2.LINE_AA)
++        cv2.line(img, right_top, right_bottom, BLUE, 1, cv2.LINE_AA)
++        cv2.line(img, right_bottom, left_bottom, BLUE, 1, cv2.LINE_AA)
++        cv2.line(img, left_bottom, left_top, BLUE, 1, cv2.LINE_AA)
++
++    return img
++    
+\ No newline at end of file
+diff --git a/utils/tddfa_util.py b/utils/tddfa_util.py
+new file mode 100644
+index 0000000..3db320d
+--- /dev/null
++++ b/utils/tddfa_util.py
+@@ -0,0 +1,103 @@
++# coding: utf-8
++
++__author__ = 'cleardusk'
++
++import sys
++
++sys.path.append('..')
++
++import argparse
++import numpy as np
++import torch
++
++
++def _to_ctype(arr):
++    if not arr.flags.c_contiguous:
++        return arr.copy(order='C')
++    return arr
++
++
++def str2bool(v):
++    if v.lower() in ('yes', 'true', 't', 'y', '1'):
++        return True
++    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
++        return False
++    else:
++        raise argparse.ArgumentTypeError('Boolean value expected')
++
++
++def load_model(model, checkpoint_fp):
++    checkpoint = torch.load(checkpoint_fp, map_location=lambda storage, loc: storage)['state_dict']
++    model_dict = model.state_dict()
++
++    # because the model is trained by multiple gpus, prefix module should be removed
++    for k in checkpoint.keys():
++        kc = k.replace('module.', '')
++        if kc in model_dict.keys():
++            model_dict[kc] = checkpoint[k]
++        if kc in ['fc_param.bias', 'fc_param.weight']:
++            model_dict[kc.replace('_param', '')] = checkpoint[k]
++
++    model.load_state_dict(model_dict)
++    return model
++
++
++class ToTensorGjz(object):
++    def __call__(self, pic):
++        if isinstance(pic, np.ndarray):
++            img = torch.from_numpy(pic.transpose((2, 0, 1)))
++            return img.float()
++
++    def __repr__(self):
++        return self.__class__.__name__ + '()'
++
++
++class NormalizeGjz(object):
++    def __init__(self, mean, std):
++        self.mean = mean
++        self.std = std
++
++    def __call__(self, tensor):
++        tensor.sub_(self.mean).div_(self.std)
++        return tensor
++
++
++def similar_transform(pts3d, roi_box, size):
++    pts3d[0, :] -= 1  # for Python compatibility
++    pts3d[2, :] -= 1
++    pts3d[1, :] = size - pts3d[1, :]
++
++    sx, sy, ex, ey = roi_box
++    scale_x = (ex - sx) / size
++    scale_y = (ey - sy) / size
++    pts3d[0, :] = pts3d[0, :] * scale_x + sx
++    pts3d[1, :] = pts3d[1, :] * scale_y + sy
++    s = (scale_x + scale_y) / 2
++    pts3d[2, :] *= s
++    pts3d[2, :] -= np.min(pts3d[2, :])
++    return np.array(pts3d, dtype=np.float32)
++
++
++def _parse_param(param):
++    """matrix pose form
++    param: shape=(trans_dim+shape_dim+exp_dim,), i.e., 62 = 12 + 40 + 10
++    """
++
++    # pre-defined templates for parameter
++    n = param.shape[0]
++    if n == 62:
++        trans_dim, shape_dim, exp_dim = 12, 40, 10
++    elif n == 72:
++        trans_dim, shape_dim, exp_dim = 12, 40, 20
++    elif n == 141:
++        trans_dim, shape_dim, exp_dim = 12, 100, 29
++    else:
++        raise Exception(f'Undefined templated param parsing rule')
++
++    R_ = param[:trans_dim].reshape(3, -1)
++    R = R_[:, :3]
++    offset = R_[:, -1].reshape(3, 1)
++    alpha_shp = param[trans_dim:trans_dim + shape_dim].reshape(-1, 1)
++    alpha_exp = param[trans_dim + shape_dim:].reshape(-1, 1)
++
++    return R, offset, alpha_shp, alpha_exp
