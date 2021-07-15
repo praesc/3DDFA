@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 import torchvision.transforms as transforms
 from torch.utils.data import DataLoader
-import mobilenet_v1
+from models import mobilenet_v1
 import torch.backends.cudnn as cudnn
 
 from utils.ddfa import DDFADataset, ToTensorGjz, NormalizeGjz
