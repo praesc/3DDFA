@@ -278,11 +278,15 @@ python3 compress.py -c v2/mb1_120x120.pth -v2 v2/mb1_120x120.yml -t spatial
 ```
 where '-t' specifies the type of compression: spatial, weight or channel. Also, the '--auto' flag can be used to set the compression parameters automatically. In this repo, manual and custom compression has been added for 3DDFA V2 model.
 
+Compressed torch model will be saved in q_models
+
 ### Quantization
-The following command performs 8-bit quantization on a given model:
+The following command performs 8-bit (fake) quantization on a given model:
 ```
 python3 quantize.py -c v2/mb1_120x120.pth -v2 v2/mb1_120x120.yml 
 ```
+
+The result of the quantization process is a floating-point onnx model and a file containing the bindings that can be used for the inference engine to quantize the model. Files will be stoed in q_model directory.
 
 ### Compression and quantization
 Compress and quantize in a go the model by using the following command:
