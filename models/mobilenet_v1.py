@@ -27,18 +27,20 @@ class DepthWiseBlock(nn.Module):
         self.conv_sep = nn.Conv2d(inplanes, planes, kernel_size=1, stride=1, padding=0, bias=False)
         self.bn_sep = nn.BatchNorm2d(planes)
         if prelu:
-            self.relu = nn.PReLU()
+            self.relu_dw = nn.PReLU()
+            self.relu_sep = nn.PReLU()
         else:
-            self.relu = nn.ReLU(inplace=True)
+            self.relu_dw = nn.ReLU(inplace=True)
+            self.relu_sep = nn.ReLU(inplace=True)
 
     def forward(self, x):
         out = self.conv_dw(x)
         out = self.bn_dw(out)
-        out = self.relu(out)
+        out = self.relu_dw(out)
 
         out = self.conv_sep(out)
         out = self.bn_sep(out)
-        out = self.relu(out)
+        out = self.relu_sep(out)
 
         return out
 

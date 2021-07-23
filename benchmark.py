@@ -17,42 +17,47 @@ from benchmark_aflw2000 import ana as ana_alfw2000
 from benchmark_aflw import calc_nme as calc_nme_alfw
 from benchmark_aflw import ana as ana_aflw
 
-from utils.ddfa import ToTensorGjz, NormalizeGjz, DDFATestDataset, reconstruct_vertex
+from utils.ddfa import ToTensorGjz, NormalizeGjz, DDFACustomDataset, DDFATestDataset, reconstruct_vertex
+from utils.tddfa_util import load_model
 import argparse
 from TDDFA_benchmark import TDDFA
 
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+
+
+def get_dataLoader(root=os.path.join(cur_dir, 'test.data/AFLW2000-3D_crop'), filelists=os.path.join(cur_dir, 'test.data/AFLW2000-3D_crop.list'), 
+                   batch_size=128, num_workers=4) -> data.DataLoader:
+    dataset = DDFACustomDataset(filelists=filelists, root=root,
+                              transform=transforms.Compose([ToTensorGjz(), NormalizeGjz(mean=127.5, std=128)]))
+    return data.DataLoader(dataset, batch_size=batch_size, num_workers=num_workers)
+
 
 def extract_param(checkpoint_fp, root='', filelists=None, arch='mobilenet_1', num_classes=62, device_ids=[0],
-                  batch_size=128, num_workers=4, tddfa=None):
-    map_location = {f'cuda:{i}': 'cuda:0' for i in range(8)}
-    checkpoint = torch.load(checkpoint_fp, map_location=map_location)['state_dict']
-    torch.cuda.set_device(device_ids[0])
- 
-    model = getattr(mobilenet_v1, arch)(num_classes=num_classes)
-    model = nn.DataParallel(model, device_ids=device_ids).cuda()
+                  batch_size=128, num_workers=4, tddfa=None, external_model=None):
     
+    
+    if tddfa is None and external_model is None:
+        model = getattr(mobilenet_v1, arch)(num_classes=num_classes)
+        model = load_model(model, checkpoint_fp)
+        model = model.to(torch.device('cuda'))
+    elif external_model:
+        model = external_model
+       
     ##### QuantLab #####
-    #from mobilenetv1_quantlab import MobileNetV1
+    #from models.mobilenetv1_quantlab import MobileNetV1
+    #map_location = {f'cuda:{i}': 'cuda:0' for i in range(8)}
     #model = MobileNetV1()
     #checkpoint = torch.load(checkpoint_fp, map_location=map_location)['net']
     #model.cuda()
     ###################
     
-    if not tddfa:
-        model_dict = model.state_dict()
-        for k in checkpoint.keys():
-            if 'fc_param' in k:
-                model_dict[k.replace('_param', '')] = checkpoint[k] 
-            if k in model_dict.keys():
-                model_dict[k] = checkpoint[k]
-        model.load_state_dict(model_dict)
-
     dataset = DDFATestDataset(filelists=filelists, root=root,
                               transform=transforms.Compose([ToTensorGjz(), NormalizeGjz(mean=127.5, std=128)]))
     data_loader = data.DataLoader(dataset, batch_size=batch_size, num_workers=num_workers)
 
     cudnn.benchmark = True
-    model.eval()
+    if not tddfa:
+        model.eval()
 
     end = time.time()
     outputs = []
@@ -106,35 +111,40 @@ def benchmark_aflw2000_params(params, tddfa):
     return _benchmark_aflw2000(outputs)
 
 
-def benchmark_pipeline(arch, checkpoint_fp, tddfa):
+def benchmark_pipeline(arch, checkpoint_fp, tddfa, model, complete: bool = False):
     device_ids = [0]
 
     def aflw():
         params = extract_param(
             checkpoint_fp=checkpoint_fp,
-            root='test.data/AFLW_GT_crop',
-            filelists='test.data/AFLW_GT_crop.list',
+            root=os.path.join(cur_dir, 'test.data/AFLW_GT_crop'),
+            filelists=os.path.join(cur_dir, 'test.data/AFLW_GT_crop.list'),
             arch=arch,
             device_ids=device_ids,
             batch_size=128,
-            tddfa=tddfa)
+            tddfa=tddfa,
+            external_model=model)
 
-        benchmark_alfw_params(params, tddfa)
+        return benchmark_alfw_params(params, tddfa)
 
     def aflw2000():
         params = extract_param(
             checkpoint_fp=checkpoint_fp,
-            root='test.data/AFLW2000-3D_crop',
-            filelists='test.data/AFLW2000-3D_crop.list',
+            root=os.path.join(cur_dir, 'test.data/AFLW2000-3D_crop'),
+            filelists=os.path.join(cur_dir, 'test.data/AFLW2000-3D_crop.list'),
             arch=arch,
             device_ids=device_ids,
             batch_size=128, 
-            tddfa=tddfa)
+            tddfa=tddfa,
+            external_model=model)
 
-        benchmark_aflw2000_params(params, tddfa)
+        return benchmark_aflw2000_params(params, tddfa)
 
-    aflw2000()
-    aflw()
+    results = aflw2000()
+    if complete:
+        aflw()
+
+    return results
 
 
 def main():
@@ -145,12 +155,13 @@ def main():
     args = parser.parse_args()
     
     tddfa = None
+    model = None
     if args.v2:
         cfg = yaml.load(open(args.v2), Loader=yaml.SafeLoader)
         tddfa = TDDFA(gpu_mode=True, **cfg)
         tddfa.load_model(args.checkpoint_fp)    
 
-    benchmark_pipeline(args.arch, args.checkpoint_fp, tddfa)
+    benchmark_pipeline(args.arch, args.checkpoint_fp, tddfa, model, complete=True)
 
 
 if __name__ == '__main__':

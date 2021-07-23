@@ -8,25 +8,27 @@ Notation (2019.09.15): two versions of spliting AFLW2000-3D:
 There is no obvious difference between these two splits.
 """
 
+import os
 import os.path as osp
 import numpy as np
 from math import sqrt
 from utils.io import _load
 
+cur_dir = os.path.dirname(os.path.abspath(__file__))
 d = 'test.configs'
 
 # [1312, 383, 305], current version
-yaws_list = _load(osp.join(d, 'AFLW2000-3D.pose.npy'))
+yaws_list = _load(osp.join(cur_dir, d, 'AFLW2000-3D.pose.npy'))
 
 # [1306, 462, 232], same as paper
 # yaws_list = _load(osp.join(d, 'AFLW2000-3D-new.pose.npy'))
 
 # origin
-pts68_all_ori = _load(osp.join(d, 'AFLW2000-3D.pts68.npy'))
+pts68_all_ori = _load(osp.join(cur_dir, d, 'AFLW2000-3D.pts68.npy'))
 
 # reannonated
-pts68_all_re = _load(osp.join(d, 'AFLW2000-3D-Reannotated.pts68.npy'))
-roi_boxs = _load(osp.join(d, 'AFLW2000-3D_crop.roi_box.npy'))
+pts68_all_re = _load(osp.join(cur_dir, d, 'AFLW2000-3D-Reannotated.pts68.npy'))
+roi_boxs = _load(osp.join(cur_dir, d, 'AFLW2000-3D_crop.roi_box.npy'))
 
 
 def ana(nme_list):

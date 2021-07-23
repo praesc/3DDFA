@@ -1,16 +1,18 @@
 #!/usr/bin/env python3
 # coding: utf-8
 
+import os
 import os.path as osp
 import numpy as np
 from math import sqrt
 from utils.io import _load
 
+cur_dir = os.path.dirname(os.path.abspath(__file__))
 d = 'test.configs'
-yaw_list = _load(osp.join(d, 'AFLW_GT_crop_yaws.npy'))
-roi_boxs = _load(osp.join(d, 'AFLW_GT_crop_roi_box.npy'))
-pts68_all = _load(osp.join(d, 'AFLW_GT_pts68.npy'))
-pts21_all = _load(osp.join(d, 'AFLW_GT_pts21.npy'))
+yaw_list = _load(osp.join(cur_dir, d, 'AFLW_GT_crop_yaws.npy'))
+roi_boxs = _load(osp.join(cur_dir, d, 'AFLW_GT_crop_roi_box.npy'))
+pts68_all = _load(osp.join(cur_dir, d, 'AFLW_GT_pts68.npy'))
+pts21_all = _load(osp.join(cur_dir, d, 'AFLW_GT_pts21.npy'))
 
 
 def ana(nme_list):

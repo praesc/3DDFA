@@ -1,5 +1,0 @@
-arch: mobilenet_1 # MobileNet V1
-widen_factor: 1.0
-bfm_fp: configs/bfm_noneck_v3.pkl # or configs/bfm_noneck_v3_slim.pkl
-size: 120
-num_params: 62

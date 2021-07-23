@@ -70,26 +70,6 @@ class TDDFA(object):
         :param kvs: options
         :return: param list and roi_box list
         """
-        # Crop image, forward to get the param
-        param_lst = []
-        '''roi_box_lst = []
-
-        crop_policy = kvs.get('crop_policy', 'box')
-        for obj in objs:
-            if crop_policy == 'box':
-                # by face box
-                roi_box = parse_roi_box_from_bbox(obj)
-            elif crop_policy == 'landmark':
-                # by landmarks
-                roi_box = parse_roi_box_from_landmark(obj)
-            else:
-                raise ValueError(f'Unknown crop policy {crop_policy}')
-
-            roi_box_lst.append(roi_box)
-            img = crop_img(img_ori, roi_box)
-            img = cv2.resize(img, dsize=(self.size, self.size), interpolation=cv2.INTER_LINEAR)
-            inp = self.transform(img).unsqueeze(0)'''
-
         if self.gpu_mode:
             inp = img_ori.cuda(device=self.gpu_id)
 
@@ -103,8 +83,6 @@ class TDDFA(object):
 
         #param = param.squeeze().cpu().numpy().flatten().astype(np.float32)
         #param  = param * self.param_std + self.param_mean  # re-scale
-        # print('output', param)
-        #param_lst.append(param)
 
         return param
 
