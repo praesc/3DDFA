@@ -255,6 +255,41 @@ The performances of pre-trained models are shown below. In the first stage, the 
 
 ### About the performance
 Believe me that the framework of this repo can achieve better performance than [PRNet](https://github.com/YadiraF/PRNet) without increasing any computation budget. Related work is under review and code will be released upon acceptance.
+```
+python3 ./benchmark.py -c models/phase1_wpdc_vdc.pth.tar
+```
+
+### Benchmark 3DDFA V2
+V2 models and support has been added in this fork for benchmarking:
+```
+python3 benchmark.py -c v2/mb1_120x120.pth -v2 v2/mb1_120x120.yml 
+```
+
+## Compression and Quantization
+Compression and quantization of models is also available by using Qualcomm Aimet package. To install Aimet libraries in your machine, please follow the procedure:
+- Python installation [link](https://github.com/quic/aimet/blob/develop/packaging/install.md)
+- Docker container [link](https://github.com/quic/aimet/blob/develop/packaging/docker_install.md)
+
+Once the libraries are build, compression and quantization can be performed as follows:
+
+### Compression
+```
+python3 compress.py -c v2/mb1_120x120.pth -v2 v2/mb1_120x120.yml -t spatial
+```
+where '-t' specifies the type of compression: spatial, weight or channel. Also, the '--auto' flag can be used to set the compression parameters automatically. In this repo, manual and custom compression has been added for 3DDFA V2 model.
+
+### Quantization
+The following command performs 8-bit quantization on a given model:
+```
+python3 quantize.py -c v2/mb1_120x120.pth -v2 v2/mb1_120x120.yml 
+```
+
+### Compression and quantization
+Compress and quantize in a go the model by using the following command:
+```
+python3 compress_and_quantize.py -c v2/mb1_120x120.pth -v2 v2/mb1_120x120.yml -t spatial
+```
+
 
 ## FQA
 1. Face bounding box initialization
