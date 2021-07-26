@@ -55,7 +55,7 @@ class Quantize(object):
         self.model.eval()
 
     def evaluate_model(self):
-        model = None if self. tddfa is not None else self.model
+        model = None if self.tddfa is not None else self.model
         
         benchmark_pipeline('mobilenet_1', '', self.tddfa, model)
     
@@ -74,7 +74,7 @@ class Quantize(object):
         # aimet/TrainingExtensions/common/src/python/aimet_common/quantsim_config/default_config.json
         config_file = 'configs/aimet_default_config.json'
         
-        sim = QuantizationSimModel(self. model, default_output_bw=8, default_param_bw=8,
+        sim = QuantizationSimModel(self.model, default_output_bw=8, default_param_bw=8,
                                    dummy_input=torch.rand(self.input_shape).cuda(),
                                    config_file=config_file)
     

@@ -286,7 +286,7 @@ The following command performs 8-bit (fake) quantization on a given model:
 python3 quantize.py -c v2/mb1_120x120.pth -v2 v2/mb1_120x120.yml 
 ```
 
-The result of the quantization process is a floating-point onnx model and a file containing the bindings that can be used for the inference engine to quantize the model. Files will be stoed in q_model directory.
+The result of the quantization process is a floating-point onnx model and a file containing the encodings that can be used for the inference engine to quantize the model. Files will be stoed in q_model directory.
 
 ### Compression and quantization
 Compress and quantize in a go the model by using the following command:
