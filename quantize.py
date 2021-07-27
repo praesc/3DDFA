@@ -145,7 +145,7 @@ def main():
 
     # Quantize equalized model
     print(bcolors.YELLOW + '\nQuantizing model' + bcolors.ENDC)
-    quantize_tool.quantsim_model(trainer_function=None, prefix='quantised_post')
+    quantize_tool.quantsim_model(trainer_function=None, prefix='quantised')
     # Evaluate after quantization
     quantize_tool.evaluate_model()
 

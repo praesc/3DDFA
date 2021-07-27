@@ -1,0 +1,1287 @@
+{
+    "activation_encodings": {
+        "102": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.8100478649139404,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0031766582937801584
+            }
+        ],
+        "105": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.817170262336731,
+                "min": -0.8236047029495239,
+                "offset": -128,
+                "scale": 0.006434411628573548
+            }
+        ],
+        "113": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.8220611810684204,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0032237693375232173
+            }
+        ],
+        "121": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.40982717275619507,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0016071653833576278
+            }
+        ],
+        "124": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.514535129070282,
+                "min": -0.49474531412124634,
+                "offset": -125,
+                "scale": 0.0039579625223197185
+            }
+        ],
+        "132": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.4693030118942261,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0018404039682126513
+            }
+        ],
+        "140": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.32165205478668213,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0012613806070065966
+            }
+        ],
+        "143": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.2656576931476593,
+                "min": -0.2147870659828186,
+                "offset": -114,
+                "scale": 0.0018840970946293252
+            }
+        ],
+        "151": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.2622561454772949,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0010284554724599802
+            }
+        ],
+        "159": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.20965895056724548,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0008221919630088058
+            }
+        ],
+        "162": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.3041291832923889,
+                "min": -0.38218003511428833,
+                "offset": -142,
+                "scale": 0.0026914086996340284
+            }
+        ],
+        "170": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.36548376083374023,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0014332696503283932
+            }
+        ],
+        "178": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.16291028261184692,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0006388638533797919
+            }
+        ],
+        "181": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.2886929214000702,
+                "min": -0.29556652903556824,
+                "offset": -129,
+                "scale": 0.0022912135311201507
+            }
+        ],
+        "189": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.2635837197303772,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0010336616460014793
+            }
+        ],
+        "197": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.18255731463432312,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0007159110377816593
+            }
+        ],
+        "200": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.3837491273880005,
+                "min": -0.3357805013656616,
+                "offset": -119,
+                "scale": 0.0028216848186418124
+            }
+        ],
+        "208": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.303880512714386,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.001191688285154455
+            }
+        ],
+        "216": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.09519238770008087,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0003733034811767877
+            }
+        ],
+        "219": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.41054895520210266,
+                "min": -0.3065057098865509,
+                "offset": -109,
+                "scale": 0.0028119790787790337
+            }
+        ],
+        "227": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.29009491205215454,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0011376271060868806
+            }
+        ],
+        "235": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.12841717898845673,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0005035967803468891
+            }
+        ],
+        "238": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.2846497595310211,
+                "min": -0.3752201497554779,
+                "offset": -145,
+                "scale": 0.0025877251344568588
+            }
+        ],
+        "246": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.22079864144325256,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0008658770252676571
+            }
+        ],
+        "254": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.0938776284456253,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.00036814756253186396
+            }
+        ],
+        "257": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.29595930874347687,
+                "min": -0.2139705866575241,
+                "offset": -107,
+                "scale": 0.0019997250800039253
+            }
+        ],
+        "265": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.22242127358913422,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0008722402885848401
+            }
+        ],
+        "273": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.12366284430027008,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0004849523305892944
+            }
+        ],
+        "276": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.26697075366973877,
+                "min": -0.28650522232055664,
+                "offset": -132,
+                "scale": 0.0021704940234913545
+            }
+        ],
+        "284": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.2565425932407379,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0010060493852577957
+            }
+        ],
+        "292": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.1014631986618042,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.00039789489671295767
+            }
+        ],
+        "295": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.14655643701553345,
+                "min": -0.24683186411857605,
+                "offset": -160,
+                "scale": 0.0015426992201337628
+            }
+        ],
+        "303": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.251924604177475,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.000987939624225392
+            }
+        ],
+        "311": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.15844345092773438,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.000621346866383272
+            }
+        ],
+        "314": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.22881007194519043,
+                "min": -0.2875312566757202,
+                "offset": -142,
+                "scale": 0.0020248679553761203
+            }
+        ],
+        "322": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.43493545055389404,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.001705629217858408
+            }
+        ],
+        "330": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.33582988381385803,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.0013169799365249334
+            }
+        ],
+        "333": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.948604166507721,
+                "min": -0.8565754294395447,
+                "offset": -121,
+                "scale": 0.007079135670381434
+            }
+        ],
+        "341": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 3.807447910308838,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.014931168275720932
+            }
+        ],
+        "344": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 2.256153106689453,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.008847659241919425
+            }
+        ],
+        "356": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 9.366350173950195,
+                "min": -14.281364440917969,
+                "offset": -154,
+                "scale": 0.09273613574458103
+            }
+        ],
+        "86": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 1.437497615814209,
+                "min": -1.4488165378570557,
+                "offset": -128,
+                "scale": 0.011318879034004959
+            }
+        ],
+        "94": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 1.7226603031158447,
+                "min": 0.0,
+                "offset": 0,
+                "scale": 0.006755530600454293
+            }
+        ],
+        "t.1": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.988311767578125,
+                "min": -0.99609375,
+                "offset": -128,
+                "scale": 0.007781982421875
+            }
+        ]
+    },
+    "param_encodings": {
+        "conv1.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0008658334845677018,
+                "min": -0.000865833484970887,
+                "offset": -2147483648,
+                "scale": 4.0318513520568935e-13
+            }
+        ],
+        "conv1.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.37604764103889465,
+                "min": -0.3188230097293854,
+                "offset": -117,
+                "scale": 0.0027249829441893334
+            }
+        ],
+        "conv1.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.7494550943374634,
+                "min": -0.7494550946864557,
+                "offset": -2147483648,
+                "scale": 3.4899222417103856e-10
+            }
+        ],
+        "conv1.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.4782971143722534,
+                "min": -0.5052977800369263,
+                "offset": -131,
+                "scale": 0.0038572348800359987
+            }
+        ],
+        "dw2_1.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.15601560473442078,
+                "min": -0.15601560480707122,
+                "offset": -2147483648,
+                "scale": 7.26504273745563e-11
+            }
+        ],
+        "dw2_1.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.5052978694438934,
+                "min": -0.47829726338386536,
+                "offset": -124,
+                "scale": 0.003857235815010819
+            }
+        ],
+        "dw2_1.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0023630685172975063,
+                "min": -0.002363068518397896,
+                "offset": -2147483648,
+                "scale": 1.1003895282735564e-12
+            }
+        ],
+        "dw2_1.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 1.2087947130203247,
+                "min": -1.0744842290878296,
+                "offset": -120,
+                "scale": 0.0089540350670908
+            }
+        ],
+        "dw2_1.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.21428368985652924,
+                "min": -0.21428368995631286,
+                "offset": -2147483648,
+                "scale": 9.978361891410912e-11
+            }
+        ],
+        "dw2_1.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.43693438172340393,
+                "min": -0.4915511906147003,
+                "offset": -135,
+                "scale": 0.0036411198915219773
+            }
+        ],
+        "dw2_2.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.12118367850780487,
+                "min": -0.12118367856423543,
+                "offset": -2147483648,
+                "scale": 5.6430547760909156e-11
+            }
+        ],
+        "dw2_2.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.4894006550312042,
+                "min": -0.4419214427471161,
+                "offset": -121,
+                "scale": 0.003652243520699295
+            }
+        ],
+        "dw2_2.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0008307515527121723,
+                "min": -0.0008307515530990211,
+                "offset": -2147483648,
+                "scale": 3.868488376489939e-13
+            }
+        ],
+        "dw2_2.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 1.0566337704658508,
+                "min": -0.7888566851615906,
+                "offset": -109,
+                "scale": 0.00723721747304879
+            }
+        ],
+        "dw2_2.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.19717790186405182,
+                "min": -0.19717790195586993,
+                "offset": -2147483648,
+                "scale": 9.181811565340959e-11
+            }
+        ],
+        "dw2_2.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.7056015133857727,
+                "min": -0.6574923396110535,
+                "offset": -123,
+                "scale": 0.005345466090183632
+            }
+        ],
+        "dw3_1.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.06635653972625732,
+                "min": -0.066356539757157,
+                "offset": -2147483648,
+                "scale": 3.0899671724604906e-11
+            }
+        ],
+        "dw3_1.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.703737199306488,
+                "min": -0.587291419506073,
+                "offset": -116,
+                "scale": 0.00506285732867671
+            }
+        ],
+        "dw3_1.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0005541156278923154,
+                "min": -0.0005541156281503456,
+                "offset": -2147483648,
+                "scale": 2.580301967218265e-13
+            }
+        ],
+        "dw3_1.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.958087682723999,
+                "min": -1.0444726943969727,
+                "offset": -133,
+                "scale": 0.007853177949494007
+            }
+        ],
+        "dw3_1.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.09558748453855515,
+                "min": -0.09558748458306654,
+                "offset": -2147483648,
+                "scale": 4.4511391121459445e-11
+            }
+        ],
+        "dw3_1.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.42073383927345276,
+                "min": -0.48083868622779846,
+                "offset": -136,
+                "scale": 0.0035355785313774557
+            }
+        ],
+        "dw3_2.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.058493006974458694,
+                "min": -0.05849300700169662,
+                "offset": -2147483648,
+                "scale": 2.7237928938910655e-11
+            }
+        ],
+        "dw3_2.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.48030105233192444,
+                "min": -0.37617984414100647,
+                "offset": -112,
+                "scale": 0.0033587486136193367
+            }
+        ],
+        "dw3_2.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0006612696452066302,
+                "min": -0.000661269645514558,
+                "offset": -2147483648,
+                "scale": 3.0792767438784147e-13
+            }
+        ],
+        "dw3_2.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.643474817276001,
+                "min": -0.7239091396331787,
+                "offset": -135,
+                "scale": 0.0053622900270948225
+            }
+        ],
+        "dw3_2.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.1304878145456314,
+                "min": -0.13048781460639453,
+                "offset": -2147483648,
+                "scale": 6.07631237275873e-11
+            }
+        ],
+        "dw3_2.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.36215245723724365,
+                "min": -0.38259655237197876,
+                "offset": -131,
+                "scale": 0.0029205843514087154
+            }
+        ],
+        "dw4_1.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.05401768907904625,
+                "min": -0.0540176891042002,
+                "offset": -2147483648,
+                "scale": 2.5153946645651105e-11
+            }
+        ],
+        "dw4_1.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.38183486461639404,
+                "min": -0.3394087553024292,
+                "offset": -120,
+                "scale": 0.002828406352622836
+            }
+        ],
+        "dw4_1.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0005645432975143194,
+                "min": -0.0005645432977772054,
+                "offset": -2147483648,
+                "scale": 2.6288595878388983e-13
+            }
+        ],
+        "dw4_1.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.6545018553733826,
+                "min": -0.6493884921073914,
+                "offset": -127,
+                "scale": 0.005113295480316761
+            }
+        ],
+        "dw4_1.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.08260054886341095,
+                "min": -0.08260054890187483,
+                "offset": -2147483648,
+                "scale": 3.8463877933972904e-11
+            }
+        ],
+        "dw4_1.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.3856700360774994,
+                "min": -0.3826570212841034,
+                "offset": -127,
+                "scale": 0.003013047283770991
+            }
+        ],
+        "dw4_2.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.050529323518276215,
+                "min": -0.05052932354180577,
+                "offset": -2147483648,
+                "scale": 2.352954984726653e-11
+            }
+        ],
+        "dw4_2.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.3871558606624603,
+                "min": -0.3441385328769684,
+                "offset": -120,
+                "scale": 0.0028678211511350147
+            }
+        ],
+        "dw4_2.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0006210744613781571,
+                "min": -0.0006210744616673675,
+                "offset": -2147483648,
+                "scale": 2.892103333339875e-13
+            }
+        ],
+        "dw4_2.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.6355183124542236,
+                "min": -0.5921875238418579,
+                "offset": -123,
+                "scale": 0.004814532691357182
+            }
+        ],
+        "dw4_2.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.11204259842634201,
+                "min": -0.11204259847851591,
+                "offset": -2147483648,
+                "scale": 5.217390064080987e-11
+            }
+        ],
+        "dw4_2.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.32156533002853394,
+                "min": -0.3450945019721985,
+                "offset": -132,
+                "scale": 0.0026143522823558136
+            }
+        ],
+        "dw5_1.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.030023368075489998,
+                "min": -0.030023368089470717,
+                "offset": -2147483648,
+                "scale": 1.3980720233857034e-11
+            }
+        ],
+        "dw5_1.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.34387075901031494,
+                "min": -0.2869712710380554,
+                "offset": -116,
+                "scale": 0.002473890313915178
+            }
+        ],
+        "dw5_1.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.00045143888564780354,
+                "min": -0.0004514388858580212,
+                "offset": -2147483648,
+                "scale": 2.102176127294177e-13
+            }
+        ],
+        "dw5_1.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.6604092121124268,
+                "min": -0.6656092405319214,
+                "offset": -128,
+                "scale": 0.005200072363311169
+            }
+        ],
+        "dw5_1.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.06496477872133255,
+                "min": -0.06496477875158413,
+                "offset": -2147483648,
+                "scale": 3.025158250312513e-11
+            }
+        ],
+        "dw5_1.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.4897346496582031,
+                "min": -0.4086994528770447,
+                "offset": -116,
+                "scale": 0.0035232709903343052
+            }
+        ],
+        "dw5_2.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0235737394541502,
+                "min": -0.02357373946512758,
+                "offset": -2147483648,
+                "scale": 1.0977377865988565e-11
+            }
+        ],
+        "dw5_2.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.48955538868904114,
+                "min": -0.2858273684978485,
+                "offset": -94,
+                "scale": 0.0030407166948505475
+            }
+        ],
+        "dw5_2.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0007467155228368938,
+                "min": -0.0007467155231846103,
+                "offset": -2147483648,
+                "scale": 3.4771651177881767e-13
+            }
+        ],
+        "dw5_2.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.6523098349571228,
+                "min": -0.9169259667396545,
+                "offset": -149,
+                "scale": 0.00615386588900697
+            }
+        ],
+        "dw5_2.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.07604643702507019,
+                "min": -0.07604643706048207,
+                "offset": -2147483648,
+                "scale": 3.541188177675105e-11
+            }
+        ],
+        "dw5_2.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.3619994521141052,
+                "min": -0.3426559567451477,
+                "offset": -124,
+                "scale": 0.00276335454454609
+            }
+        ],
+        "dw5_3.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.02990936115384102,
+                "min": -0.029909361167768652,
+                "offset": -2147483648,
+                "scale": 1.3927631623935258e-11
+            }
+        ],
+        "dw5_3.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.3608435094356537,
+                "min": -0.34156176447868347,
+                "offset": -124,
+                "scale": 0.002754530485938577
+            }
+        ],
+        "dw5_3.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.00047651061322540045,
+                "min": -0.000476510613447293,
+                "offset": -2147483648,
+                "scale": 2.2189254567366698e-13
+            }
+        ],
+        "dw5_3.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.6861016154289246,
+                "min": -0.7479632496833801,
+                "offset": -133,
+                "scale": 0.005623783784754136
+            }
+        ],
+        "dw5_3.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.10186997801065445,
+                "min": -0.10186997805809135,
+                "offset": -2147483648,
+                "scale": 4.743690512054197e-11
+            }
+        ],
+        "dw5_3.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.39281752705574036,
+                "min": -0.42823556065559387,
+                "offset": -133,
+                "scale": 0.0032198160302405266
+            }
+        ],
+        "dw5_4.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.02588147297501564,
+                "min": -0.025881472987067642,
+                "offset": -2147483648,
+                "scale": 1.2052000028578398e-11
+            }
+        ],
+        "dw5_4.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.42885035276412964,
+                "min": -0.3522699475288391,
+                "offset": -115,
+                "scale": 0.003063216863893995
+            }
+        ],
+        "dw5_4.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0006168895633891225,
+                "min": -0.0006168895636763841,
+                "offset": -2147483648,
+                "scale": 2.872615883482546e-13
+            }
+        ],
+        "dw5_4.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 1.3373135328292847,
+                "min": -1.1338094472885132,
+                "offset": -117,
+                "scale": 0.009690678353403129
+            }
+        ],
+        "dw5_4.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.07237191498279572,
+                "min": -0.07237191501649652,
+                "offset": -2147483648,
+                "scale": 3.3700799111508076e-11
+            }
+        ],
+        "dw5_4.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.4314250349998474,
+                "min": -0.7145475745201111,
+                "offset": -159,
+                "scale": 0.004494010233411602
+            }
+        ],
+        "dw5_5.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.05980880185961723,
+                "min": -0.05980880188746788,
+                "offset": -2147483648,
+                "scale": 2.7850643679251838e-11
+            }
+        ],
+        "dw5_5.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.43142515420913696,
+                "min": -0.7145479321479797,
+                "offset": -159,
+                "scale": 0.004494012103361242
+            }
+        ],
+        "dw5_5.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0007132790051400661,
+                "min": -0.0007132790054722126,
+                "offset": -2147483648,
+                "scale": 3.321464198977745e-13
+            }
+        ],
+        "dw5_5.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 1.3134671449661255,
+                "min": -1.2239123582839966,
+                "offset": -123,
+                "scale": 0.009950507855882832
+            }
+        ],
+        "dw5_5.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.15305206179618835,
+                "min": -0.1530520618674588,
+                "offset": -2147483648,
+                "scale": 7.127042015430461e-11
+            }
+        ],
+        "dw5_5.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.5155827701091766,
+                "min": -0.48042944073677063,
+                "offset": -123,
+                "scale": 0.0039059302386115578
+            }
+        ],
+        "dw5_6.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.1942594051361084,
+                "min": -0.19425940522656748,
+                "offset": -2147483648,
+                "scale": 9.045908470943919e-11
+            }
+        ],
+        "dw5_6.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.5157412886619568,
+                "min": -0.5037474036216736,
+                "offset": -126,
+                "scale": 0.003997994871700512
+            }
+        ],
+        "dw5_6.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0008907098672352731,
+                "min": -0.0008907098676500423,
+                "offset": -2147483648,
+                "scale": 4.1476910358762473e-13
+            }
+        ],
+        "dw5_6.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 1.589086890220642,
+                "min": -1.4576586484909058,
+                "offset": -122,
+                "scale": 0.011948021720437442
+            }
+        ],
+        "dw5_6.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.12522467970848083,
+                "min": -0.12522467976679313,
+                "offset": -2147483648,
+                "scale": 5.83122855829043e-11
+            }
+        ],
+        "dw5_6.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.8018471002578735,
+                "min": -0.9608340263366699,
+                "offset": -139,
+                "scale": 0.006912475006253111
+            }
+        ],
+        "dw6.conv_dw.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0543547086417675,
+                "min": -0.05435470866707839,
+                "offset": -2147483648,
+                "scale": 2.5310883609148854e-11
+            }
+        ],
+        "dw6.conv_dw.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.6420547962188721,
+                "min": -0.9630821943283081,
+                "offset": -153,
+                "scale": 0.006294654864890903
+            }
+        ],
+        "dw6.conv_sep.0.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.0032514294143766165,
+                "min": -0.0032514294158906814,
+                "offset": -2147483648,
+                "scale": 1.5140648073939054e-12
+            }
+        ],
+        "dw6.conv_sep.0.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 2.7424917221069336,
+                "min": -2.6370115280151367,
+                "offset": -125,
+                "scale": 0.021096091176949296
+            }
+        ],
+        "dw6.conv_sep.1.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.9706470370292664,
+                "min": -0.9706470374812591,
+                "offset": -2147483648,
+                "scale": 4.5199274899496657e-10
+            }
+        ],
+        "dw6.conv_sep.1.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 2.6370112895965576,
+                "min": -2.7424919605255127,
+                "offset": -130,
+                "scale": 0.021096091176949296
+            }
+        ],
+        "fc.bias": [
+            {
+                "bitwidth": 32,
+                "is_symmetric": "True",
+                "max": 0.10334884375333786,
+                "min": -0.10334884380146342,
+                "offset": -2147483648,
+                "scale": 4.8125555646355925e-11
+            }
+        ],
+        "fc.weight": [
+            {
+                "bitwidth": 8,
+                "is_symmetric": "False",
+                "max": 0.3170841634273529,
+                "min": -0.2863222658634186,
+                "offset": -121,
+                "scale": 0.0023662997227089076
+            }
+        ]
+    },
+    "version": "0.4.0"
+}
